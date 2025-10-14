@@ -1,0 +1,112 @@
+name: CI Pipeline GymApp
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ============================================================
+  # 🧱 JOB 1: Spring Boot Backend
+  # ============================================================
+  backend:
+    name: 🍃 Spring Boot API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java 21 (Amazon Corretto)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: gradle
+
+      - name: 🏗️ Build Spring Boot
+        run: |
+          cd apps/gymapp-api
+          chmod +x ./gradlew
+          ./gradlew build -x test
+
+      - name: ✅ Run Tests (Spring Boot)
+        run: |
+          cd apps/gymapp-api
+          ./gradlew test
+      
+      - name: 📦 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-jar
+          path: apps/gymapp-api/build/libs/*.jar
+          retention-days: 7
+  # ============================================================
+  # 🧱 JOB 2: Angular Frontend
+  # ============================================================
+  frontend:
+    name: 🅰️ Angular Web Admin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/web-admin/package-lock.json
+
+      - name: 📥 Install dependencies
+        run: | 
+          cd apps/web-admin
+          npm ci
+
+      - name: ✅ Run Tests (Angular)
+        run: | 
+          cd apps/web-admin
+          npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: 🏗️ Build Angular
+        run: | 
+          cd apps/web-admin
+          npm run build
+
+      - name: 📦 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dist
+          path: apps/web-admin/dist
+          retention-days: 7
+  # ============================================================
+  # 🔄 JOB 3: Integração / Verificação Final
+  # ============================================================
+  integration:
+    name: 🔄 Integration Check
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    steps:
+    - name: 📥 Download Backend Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: spring-boot-jar
+        path: ./backend-dist
+
+    - name: 📥 Download Frontend Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: angular-dist
+        path: ./frontend-dist
+
+    - name: 🔍 Validate artifacts
+      run: |
+        echo "Verificando artefatos disponíveis..."
+        ls -R ./backend-dist
+        ls -R ./frontend-dist
+
+    - name: ✅ Integration Summary
+      run: echo "✅ Backend e Frontend buildados e testados com sucesso!"

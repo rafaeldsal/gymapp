@@ -1,5 +1,11 @@
 # GymApp 🏋️
 
+[![CI Status](https://github.com/rafaeldsal/gymapp/workflows/CI%20Pipeline/badge.svg)](https://github.com/rafaeldsal/gymapp/actions)
+[![Java](https://img.shields.io/badge/Java-17-007396?logo=openjdk)](https://java.com)
+[![Angular](https://img.shields.io/badge/Angular-17+-DD0031?logo=angular)](https://angular.io)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.0-6DB33F?logo=springboot)](https://spring.io)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 Sistema completo desenvolvido em monorepo para modernizar a gestão de academias, oferecendo soluções integradas para administradores, instrutores e alunos.
 
 ## **🏗️ Estrutura do Monorepo**
@@ -20,16 +26,16 @@ gymapp/
 
 ### Pré-requisitos
 
-- Node.js 18+
-- Java 17+
+- Node.js v22.20.0
+- Java 21
 - Docker & Docker Compose
-- Angular CLI
+- Angular CLI 20.2.1
 
 ### Desenvolvimento
 
 ```bash
 # Clonar repositório
-git clone https://github.com/SEU_USUARIO/gymapp.git
+git clone https://github.com/rafaeldsal/gymapp.git
 cd gymapp
 
 # Iniciar ambiente completo de desenvolvimento
@@ -55,7 +61,7 @@ cd gymapp
 
 ### **Frontend Web**
 
-- Angular 17+ com Standalone Components
+- Angular 20.2.1 com Standalone Components
 - Clarity Design System - Design system enterprise
 - Tailwind CSS - Utilitários CSS
 - TypeScript - Tipagem estática
@@ -108,11 +114,3 @@ Distribuído sob a licença MIT. Veja LICENSE para mais informações.
 Rafael de Souza Alves
 
 - GitHub: @rafaeldsal
-# 🏋️ GymApp
-
-[![CI Status](https://github.com/rafael/gymapp/workflows/CI/badge.svg)](https://github.com/rafael/gymapp/actions)
-[![Java](https://img.shields.io/badge/Java-17-blue.svg)](https://java.com)
-[![Angular](https://img.shields.io/badge/Angular-17+-red.svg)](https://angular.io)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-Sistema completo de gestão para academias...
