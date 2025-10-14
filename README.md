@@ -1,191 +1,118 @@
 # GymApp 🏋️
 
-Sistema completo de gestão para academias.
+Sistema completo desenvolvido em monorepo para modernizar a gestão de academias, oferecendo soluções integradas para administradores, instrutores e alunos.
 
-## 🏗️ Estrutura do Monorepo
+## **🏗️ Estrutura do Monorepo**
 
 ```text
 gymapp/
 ├── apps/
 │ ├── web-admin/ # Angular 17+ - Painel administrativo
-│ ├── api/ # Spring Boot - API REST
-│ └── mobile-android/ # Kotlin - App para alunos
-├── libs/ # Recursos compartilhados
-├── docker/ # Configurações Docker
-└── scripts/ # Scripts de automação
+│ ├── api/ # Spring Boot 3+ - API REST
+│ └── mobile-android/ # Kotlin - App mobile (em breve)
+├── scripts/ # Automação e utilitários
+├── docker/ # Containers para desenvolvimento
+├── libs/shared-types/ # Contratos OpenAPI
+└── docs/ # Documentação
 ```
 
-## 🚀 Desenvolvimento
+## **🚀 Começando**
+
+### Pré-requisitos
+
+- Node.js 18+
+- Java 17+
+- Docker & Docker Compose
+- Angular CLI
+
+### Desenvolvimento
 
 ```bash
-# Instalar dependências do Angular
-cd apps/web-admin && npm install
+# Clonar repositório
+git clone https://github.com/SEU_USUARIO/gymapp.git
+cd gymapp
 
-# Executar em desenvolvimento
-npm run dev:api    # Spring Boot (localhost:8080)
-npm run dev:web    # Angular (localhost:4200)
+# Iniciar ambiente completo de desenvolvimento
+./scripts/start-dev.sh
+
+# Buildar todas as aplicações
+./scripts/build-all.sh
+
+# Limpar ambiente
+./scripts/cleanup.sh
 ```
 
-## 📋 Stack Tecnológica
+## **📡 Serviços em Desenvolvimento**
 
-- Frontend Web: Angular 17+, Clarity Design System, Tailwind CSS
-- Backend: Spring Boot 3+, Java 17+, Gradle
-- Mobile: Kotlin, Android SDK
-- Banco: PostgreSQL
-- Container: Docker
+| Serviço        | URL                                                                            | Descrição             |
+| -------------- | ------------------------------------------------------------------------------ | --------------------- |
+| 🅰️ Angular     | [http://localhost:4200](http://localhost:4200)                                 | Painel administrativo |
+| ☕ Spring Boot | [http://localhost:8080](http://localhost:8080)                                 | API REST              |
+| 🐘 PostgreSQL  | localhost:5433                                                                 | Banco de dados        |
+| 📚 Swagger UI  | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Documentação da API   |
 
-### **4. 🔧 SCRIPTS DE AUTOMAÇÃO**
+## **🛠️ Stack Tecnológica**
 
-#### **4.1 Script de build completo**
+### **Frontend Web**
 
-```bash
-#!/bin/bash
-# scripts/build-all.sh
+- Angular 17+ com Standalone Components
+- Clarity Design System - Design system enterprise
+- Tailwind CSS - Utilitários CSS
+- TypeScript - Tipagem estática
 
-echo "🏗️  Building GymApp Monorepo..."
+### **Backend**
 
-# Build API
-echo "🔨 Building Spring Boot API..."
-cd apps/api
-./gradlew clean build -x test
-cd ../..
+- Spring Boot 3+ - Framework Java
+- Gradle - Gerenciamento de dependências
+- PostgreSQL - Banco de dados principal
+- OpenAPI 3.0 - Especificação de APIs
 
-# Build Web Admin
-echo "🔨 Building Angular Web Admin..."
-cd apps/web-admin
-npm run build
-cd ../..
+### **Infraestrutura**
 
-echo "✅ All builds completed!"
-```
+- Docker - Containerização
+- Docker Compose - Orquestração
+- Monorepo - Gerenciamento de múltiplos projetos
 
-#### **4.2 Script de desenvolvimento**
+## **📊 Funcionalidades**
 
-```bash
-#!/bin/bash
-# scripts/start-dev.sh
+### **✅ Implementadas**
 
-echo "🚀 Starting GymApp Development Environment..."
+- Estrutura de monorepo
+- Ambiente de desenvolvimento integrado
+- API REST básica
+- Interface web básica
+- Containerização com Docker
+- Documentação OpenAPI
 
-echo "📦 Checking dependencies..."
-# Verifica se todas as dependências estão instaladas
-if [ ! -d "apps/web-admin/node_modules" ]; then
-    echo "Installing Angular dependencies..."
-    cd apps/web-admin && npm install && cd ../..
-fi
+### **🚧 Em Desenvolvimento**
 
-echo "🐘 Starting PostgreSQL with Docker..."
-docker-compose -f docker/docker-compose.dev.yml up -d database
+- CRUD de alunos
+- Sistema de planos
+- Gestão de pagamentos
+- App mobile
 
-# Wait for database
-sleep 5
+### **🤝 Contribuindo**
 
-echo "☕ Starting Spring Boot API..."
-cd apps/api
-./gradlew bootRun &
+1. Fork o projeto
+2. Crie uma branch para sua feature (git checkout -b feature/AmazingFeature)
+3. Commit suas mudanças (git commit -m 'Add some AmazingFeature')
+4. Push para a branch (git push origin feature/AmazingFeature)
+5. Abra um Pull Request
 
-echo "🅰️  Starting Angular Dev Server..."
-cd ../web-admin
-ng serve &
+## **📄 Licença**
 
-echo "✅ Development environment running!"
-echo "📱 API: http://localhost:8080"
-echo "💻 Web: http://localhost:4200"
-echo "🐘 DB: localhost:5432"
-echo "📊 H2 Console: http://localhost:8080/h2-console"
-```
+Distribuído sob a licença MIT. Veja LICENSE para mais informações.
 
-### **5. 🐳 DOCKER PARA DESENVOLVIMENTO**
+## **👨‍💻 Autor**
 
-#### **5.1 Docker Compose para dev **
+Rafael de Souza Alves
 
-```yaml
-# docker/docker-compose.dev.yml
-version: "3.8"
-services:
-  database:
-    image: postgres:13
-    environment:
-      POSTGRES_DB: gymapp_dev
-      POSTGRES_USER: gymapp
-      POSTGRES_PASSWORD: gymapp123
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+- GitHub: @rafaeldsal
+# 🏋️ GymApp
 
-volumes:
-  postgres_data:
-```
+[![CI Status](https://github.com/rafael/gymapp/workflows/CI/badge.svg)](https://github.com/rafael/gymapp/actions)
+[![Java](https://img.shields.io/badge/Java-17-blue.svg)](https://java.com)
+[![Angular](https://img.shields.io/badge/Angular-17+-red.svg)](https://angular.io)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-### **6. 📚 LIBS - COMPARTILHAMENTO ENTRE STACKS**
-
-#### **6.1 Estrutura da lib shared-types**
-
-```text
-gymapp/libs/shared-types/
-├── openapi/
-│   └── gymapp-api.yaml    # Contrato OpenAPI
-├── schemas/               # Esquemas comuns
-├── README.md
-└── package.json          # Para publicação futura
-```
-
-#### **6.2 Cpmtratp OpenAPI básico**
-
-```yaml
-# libs/shared-types/openapi/gymapp-api.yaml
-openapi: 3.0.0
-info:
-  title: GymApp API
-  description: API para sistema de gestão de academias
-  version: 1.0.0
-  contact:
-    name: Rafael Alves
-    email: rafael@email.com
-
-servers:
-  - url: http://localhost:8080
-    description: Development server
-
-paths:
-  /health:
-    get:
-      summary: Health check
-      responses:
-        "200":
-          description: API is running
-          content:
-            text/plain:
-              example: "GymApp API is running! 🏋️"
-
-  /api/students:
-    get:
-      summary: List all students
-      responses:
-        "200":
-          description: Students list
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Student"
-
-components:
-  schemas:
-    Student:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        status:
-          type: string
-          enum: [ACTIVE, INACTIVE, PENDING]
-```
+Sistema completo de gestão para academias...
