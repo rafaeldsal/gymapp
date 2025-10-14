@@ -48,26 +48,36 @@ jacoco {
 	toolVersion = "0.8.12"
 }
 
-tasks.test {
-	useJUnitPlatform()
-	finalizedBy(tasks.jacocoTestReport)
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
-tasks.jacocoTestReport {
-	dependsOn(tasks.test)
-	reports {
-		xml.required.set(true)
-		csv.required.set(false)
-		html.outputLocation.set(layout.buildDirectory.dir("reports/jacocoHtml"))
-	}
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                "**/GymAppApiApplication.class",
+                "**/config/**",
+                "**/dto/**",
+                "**/entity/**"
+            ])
+        }))
+    }
 }
 
-tasks.jacocoTestCoverageVerification {
-    dependsOn(tasks.test)
+jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.8
+                minimum = 0.80  // 80% coverage mínimo
             }
         }
     }
