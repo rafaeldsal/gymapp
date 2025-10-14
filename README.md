@@ -1,10 +1,13 @@
 # GymApp 🏋️
 
-[![CI Status](https://github.com/rafaeldsal/gymapp/workflows/CI%20Pipeline/badge.svg)](https://github.com/rafaeldsal/gymapp/actions)
+[![CI Status](https://github.com/SEU_USUARIO/gymapp/workflows/CI%20Pipeline/badge.svg)](https://github.com/SEU_USUARIO/gymapp/actions)
+[![Coverage](https://img.shields.io/badge/Coverage-80%25-brightgreen)](https://github.com/SEU_USUARIO/gymapp)
 [![Java](https://img.shields.io/badge/Java-17-007396?logo=openjdk)](https://java.com)
 [![Angular](https://img.shields.io/badge/Angular-17+-DD0031?logo=angular)](https://angular.io)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.0-6DB33F?logo=springboot)](https://spring.io)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://docker.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 Sistema completo desenvolvido em monorepo para modernizar a gestão de academias, oferecendo soluções integradas para administradores, instrutores e alunos.
 

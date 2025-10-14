@@ -6,11 +6,12 @@ import { Observable } from "rxjs";
   providedIn: 'root'
 })
 export class ApiService {
+  // CORREÇÃO: Incluir o context path /ws-gymapp
   private apiUrl = 'http://localhost:8080/ws-gymapp';
 
   constructor(private http: HttpClient) { }
 
-  getHealth() {
+  getHealth(): Observable<string> {
     return this.http.get(`${this.apiUrl}/health`, { responseType: 'text' });
   }
 
