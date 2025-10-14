@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  # Banco de Dados Principal
+  database:
+    image: postgres:13
+    container_name: gymapp-db-dev
+    environment:
+      POSTGRES_DB: gymapp_dev
+      POSTGRES_USER: gymapp
+      POSTGRES_PASSWORD: gymapp123
+    ports:
+      - "5433:5432" # Expõe a porta do container para sua máquina
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gymapp -d gymapp_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (para cache e sessões - futuro)
+  redis:
+    image: redis:alpine
+    container_name: gymapp-redis-dev
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

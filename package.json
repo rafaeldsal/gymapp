@@ -1,0 +1,22 @@
+{
+  "name": "gymapp-monorepo",
+  "version": "1.0.0",
+  "description": "GymApp - Sistema completo para academias",
+  "scripts": {
+    "dev:web": "cd apps/web-admin && ng serve",
+    "dev:api": "cd apps/api && ./gradlew bootRun",
+    "dev:mobile": "cd apps/mobile-android && ./gradlew build",
+    "build:all": "./scripts/build-all.sh",
+    "test:all": "./scripts/test-all.sh",
+    "docker:dev": "docker-compose -f docker/docker-compose.dev.yml up -d"
+  },
+  "keywords": [
+    "gym",
+    "academia",
+    "angular",
+    "spring-boot",
+    "kotlin"
+  ],
+  "author": "Rafael Alves",
+  "license": "MIT"
+}

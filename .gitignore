@@ -1,0 +1,38 @@
+# Angular
+apps/web-admin/dist/
+apps/web-admin/node_modules/
+apps/web-admin/.angular/cache/
+
+# Spring Boot
+apps/api/build/
+apps/api/.gradle/
+apps/api/.idea/
+apps/api/*.log
+
+# Android
+apps/mobile-android/build/
+apps/mobile-android/.gradle/
+apps/mobile-android/.idea/
+apps/mobile-android/*.apk
+apps/mobile-android/local.properties
+
+# Docker
+docker/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*.tmp
+*.temp
