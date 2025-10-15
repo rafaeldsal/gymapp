@@ -1,19 +1,640 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: GymApp API
-  version: 1.0.0
+  description: |
+    API completa para gestão de academias, alunos, planos e treinos.
 
-  paths:
-    /health:
-      get:
-        summary: Health check
-        response:
-          '200':
-            description: OK
-    
-    /api/students/test:
-      get:
-        summary: Test Students endpoint
-        response:
-          '200':
-            description: Success
+    ## Autenticação
+    Esta API usa JWT para autenticação. Inclua o token no header:
+    `Authorization: Bearer <seu-token>`
+
+    ## Fluxo Principal
+    1. Criar Academia
+    2. Cadastrar Usuários (Admin/Instrutor/Member)
+    3. Criar Planos e Modalidades
+    4. Matricular Membros
+    5. Gerenciar Aulas e Check-ins
+  version: 1.0.0
+  contact:
+    name: Suporte GymApp
+    email: suporte@gymapp.com
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor de desenvolvimento
+  - url: https://api.gymapp.com/v1
+    description: Servidor de produção
+
+tags:
+  - name: Academies
+    description: Operações relacionadas a academias
+  - name: Users
+    description: Gerenciamento de usuários
+  - name: Plans
+    description: Gerenciamento de planos
+  - name: Modalities
+    description: Gerenciamento de modalidades
+  - name: Enrollments
+    description: Matrículas e assinaturas
+
+paths:
+  # =========================================
+  # ACADEMIES ENDPOINTS
+  # =========================================
+  /academies:
+    post:
+      tags: [Academies]
+      summary: Criar uma nova academia
+      description: Cria uma nova academia no sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAcademyRequest"
+      responses:
+        "201":
+          description: Academia criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcademyResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          description: CNPJ ou Email já cadastrado
+
+    get:
+      tags: [Academies]
+      summary: Listar academias
+      description: Retorna lista paginada de academias
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Filtro por nome
+      responses:
+        "200":
+          description: Lista de academias retornada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcademyListResponse"
+
+  /academies/{academyId}:
+    get:
+      tags: [Academies]
+      summary: Buscar academia por ID
+      parameters:
+        - $ref: "#/components/parameters/AcademyId"
+      responses:
+        "200":
+          description: Academia encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcademyResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Academies]
+      summary: Atualizar academia
+      parameters:
+        - $ref: "#/components/parameters/AcademyId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAcademyRequest"
+      responses:
+        "200":
+          description: Academia atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcademyResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Academies]
+      summary: Deletar academia
+      parameters:
+        - $ref: "#/components/schemas/AcademyId"
+      responses:
+        "200":
+          description: Academia deletada
+        "400":
+          description: "#/components/schemas/NotFound"
+
+  # =========================================
+  # USERS ENDPOINTS
+  # =========================================
+  /academies/{academyId}/users:
+    post:
+      tags: [Users]
+      summary: Criar usuário
+      description: Cria um novo usuário (Admin, Instrutor ou Member)
+      parameters:
+        - $ref: "#/components/parameters/AcademyId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/CreateAdminRequest"
+                - $ref: "#/components/schemas/CreateInstructorRequest"
+                - $ref: "#/components/schemas/CreateMemberRequest"
+            discriminator:
+              propertyName: userType
+      responses:
+        "201":
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags: [Users]
+      summary: Listar usuários da academia
+      parameters:
+        - $ref: "#/components/parameters/AcademyId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - name: userType
+          in: query
+          schema:
+            type: string
+            enum: [ADMIN, INSTRUCTOR, MEMBER]
+          description: Filtrar por tipo de usuário
+      responses:
+        "200":
+          description: Lista de usuários retornada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    # =========================================
+    # REQUEST SCHEMAS (O que o CLIENTE ENVIA)
+    # =========================================
+
+    CreateAcademyRequest:
+      type: object
+      required:
+        - name
+        - cnpj
+        - phone
+        - email
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+          example: "Academia Fitness Center"
+        cnpj:
+          type: string
+          pattern: '^\d{14}$'
+          example: "12345678000199"
+          description: CNPJ sem pontuação (14 dígitos)
+        phone:
+          type: string
+          example: "11999999999"
+        email:
+          type: string
+          format: email
+          example: "contato@fitnesscenter.com"
+        businessHours:
+          $ref: "#/components/schemas/BusinessHoursRequest"
+
+    UpdateAcademyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        businessHours:
+          $ref: "#/components/schemas/BusinessHoursRequest"
+
+    BusinessHoursRequest:
+      type: object
+      properties:
+        open:
+          type: string
+          format: time
+          example: "06:00:00"
+        close:
+          type: string
+          format: time
+          example: "22:00:00"
+
+    # USER REQUESTS - usando herança implícita
+    CreateUserRequest:
+      type: object
+      discriminator:
+        propertyName: userType
+      required:
+        - userType
+        - name
+        - cpf
+        - email
+      properties:
+        userType:
+          type: string
+          enum: [ADMIN, INSTRUCTOR, MEMBER]
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+          example: "João Silva"
+        cpf:
+          type: string
+          pattern: '^\d{11}$'
+          example: "12345678901"
+        email:
+          type: string
+          format: email
+          example: "joao.silva@email.com"
+        phone:
+          type: string
+          example: "11988887777"
+        birthDate:
+          type: string
+          format: date
+          example: "1990-01-15"
+        address:
+          $ref: "#/components/schemas/AddressRequest"
+
+    CreateAdminRequest:
+      allOf:
+        - $ref: "#/components/schemas/CreateUserRequest"
+        - type: object
+          properties:
+            adminPermissions:
+              type: array
+              items:
+                type: string
+                enum:
+                  [CREATE_PLAN, MANAGE_USERS, VIEW_REPORTS, MANAGE_FINANCIAL]
+              example: ["CREATE_PLAN", "MANAGE_USERS"]
+
+    CreateInstructorRequest:
+      allOf:
+        - $ref: "#/components/schemas/CreateUserRequest"
+        - type: object
+          required:
+            - specialty
+            - hireDate
+          properties:
+            specialty:
+              type: string
+              example: "Musculação"
+            hireDate:
+              type: string
+              format: date
+              example: "2024-01-01"
+
+    CreateMemberRequest:
+      allOf:
+        - $ref: "#/components/schemas/CreateUserRequest"
+        - type: object
+          required:
+            - emergencyContact
+          properties:
+            medicalRestrictions:
+              type: string
+              example: "Problema na coluna"
+            emergencyContact:
+              type: string
+              example: "Maria Silva - (11) 99999-8888"
+
+    AddressRequest:
+      type: object
+      properties:
+        street:
+          type: string
+          example: "Rua das Flores"
+        number:
+          type: string
+          example: "123"
+        complement:
+          type: string
+          example: "Apto 45"
+        neighborhood:
+          type: string
+          example: "Centro"
+        city:
+          type: string
+          example: "São Paulo"
+        state:
+          type: string
+          example: "SP"
+        postalCode:
+          type: string
+          pattern: '^\d{8}$'
+          example: "01234000"
+
+    # =========================================
+    # RESPONSE SCHEMAS (O que o CLIENTE RECEBE)
+    # =========================================
+
+    AcademyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "Academia Fitness Center"
+        cnpj:
+          type: string
+          example: "12345678000199"
+        phone:
+          type: string
+          example: "11999999999"
+        email:
+          type: string
+          format: email
+          example: "contato@fitnesscenter.com"
+        businessHours:
+          $ref: "#/components/schemas/BusinessHoursResponse"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BusinessHoursResponse:
+      type: object
+      properties:
+        open:
+          type: string
+          format: time
+          example: "06:00:00"
+        close:
+          type: string
+          format: time
+          example: "22:00:00"
+
+    UserResponse:
+      type: object
+      discriminator:
+        propertyName: userType
+      properties:
+        id:
+          type: string
+          format: uuid
+        userType:
+          type: string
+          enum: [ADMIN, INSTRUCTOR, MEMBER]
+        name:
+          type: string
+          example: "João Silva"
+        cpf:
+          type: string
+          example: "12345678901"
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        academyId:
+          type: string
+          format: uuid
+        address:
+          $ref: "#/components/schemas/AddressResponse"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AdminResponse:
+      allOf:
+        - $ref: "#/components/schemas/UserResponse"
+        - type: object
+          properties:
+            adminPermissions:
+              type: array
+              items:
+                type: string
+
+    InstructorResponse:
+      allOf:
+        - $ref: "#/components/schemas/UserResponse"
+        - type: object
+          properties:
+            specialty:
+              type: string
+            hireDate:
+              type: string
+              format: date
+
+    MemberResponse:
+      allOf:
+        - $ref: "#/components/schemas/UserResponse"
+        - type: object
+          properties:
+            medicalRestrictions:
+              type: string
+            emergencyContact:
+              type: string
+
+    AddressResponse:
+      type: object
+      properties:
+        street:
+          type: string
+        number:
+          type: string
+        complement:
+          type: string
+        neighborhood:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+
+    # =========================================
+    # LIST RESPONSES (Paginação)
+    # =========================================
+
+    AcademyListResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcademyResponse"
+        totalPages:
+          type: integer
+          example: 5
+        totalElements:
+          type: integer
+          example: 42
+        currentPage:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 10
+
+    UserListResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserResponse"
+        totalPages:
+          type: integer
+        totalElements:
+          type: integer
+        currentPage:
+          type: integer
+        size:
+          type: integer
+
+    # =========================================
+    # ERROR RESPONSES
+    # =========================================
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Validation failed"
+        path:
+          type: string
+          example: "/api/v1/academies"
+
+    ValidationError:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Validation Error"
+        message:
+          type: string
+          example: "Dados de entrada inválidos"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "email"
+              message:
+                type: string
+                example: "must be a well-formed email address"
+
+  # =========================================
+  # PARAMETERS REUTILIZÁVEIS
+  # =========================================
+  parameters:
+    AcademyId:
+      name: academyId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID da academia
+
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Número da página (0-based)
+
+    Size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Tamanho da página
+
+  # =========================================
+  # RESPONSES REUTILIZÁVEIS
+  # =========================================
+  responses:
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ValidationError:
+      description: Dados de entrada inválidos
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"
+
+    InternalError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

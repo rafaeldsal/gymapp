@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: gymapp-api
+
+  web:
+    cors:
+      allowed-origins: "http://localhost:4200"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/gymapp_dev
+    username: gymapp
+    password: gymapp123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+  servlet:
+    context-path: /ws-gymapp
